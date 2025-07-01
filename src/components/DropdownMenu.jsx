@@ -14,7 +14,7 @@ const DropdownMenu = () => {
       onChange={handleChange}
       className="text-sm text-indigo-700 border border-indigo-300 rounded px-3 py-1 shadow-sm hover:border-indigo-500"
     >
-      <option value="" disabled>
+      <option value="">
         Task Board
       </option>
       <option value="Homepage"> Homepage</option>

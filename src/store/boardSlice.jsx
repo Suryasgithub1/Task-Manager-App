@@ -1,7 +1,6 @@
 import { createSlice } from "@reduxjs/toolkit";
 
-const generateId = () =>
-  `id-${Date.now()}-${Math.random().toString(36).substr(2, 5)}`;
+const generateId = () => `id-${Math.random().toString(36).slice(2, 8)}`;
 
 const loadState = () => {
   try {
@@ -40,12 +39,15 @@ const boardSlice = createSlice({
     },
 
     renameGroup: (state, action) => {
-      const { id, title } = action.payload;
-      const group = state.groups.find((g) => g.id === id);
-      if (group) {
-        group.title = title;
-        persist(state);
+      const groupId = action.payload.id;
+      const newTitle = action.payload.title;
+      const existingGroup = state.groups.find((group) => group.id === groupId);
+      if (existingGroup) {
+        existingGroup.title = newTitle;
+      } else {
+        console.warn(`Group with ID ${groupId} not found. Rename failed.`);
       }
+      persist(state);
     },
 
     removeGroup: (state, action) => {
@@ -61,10 +63,6 @@ const boardSlice = createSlice({
           title: "",
           status: "To Do",
         };
-
-        group.columns.forEach((col) => {
-          newRow[col.id] = "";
-        });
 
         group.rows.push(newRow);
         persist(state);
@@ -89,21 +87,11 @@ const boardSlice = createSlice({
       }
     },
 
-    reorderGroups: (state, action) => {
-      const { sourceIndex, destinationIndex } = action.payload;
-      const [moved] = state.groups.splice(sourceIndex, 1);
-      state.groups.splice(destinationIndex, 0, moved);
-      persist(state);
-    },
-
     addColumn: (state, action) => {
       const { groupId, column } = action.payload;
       const group = state.groups.find((g) => g.id === groupId);
       if (group) {
         group.columns.push(column);
-        group.rows.forEach((row) => {
-          row[column.id] = "";
-        });
         persist(state);
       }
     },
@@ -130,6 +118,18 @@ const boardSlice = createSlice({
           persist(state);
         }
       }
+    },
+
+    reorderGroups: (state, action) => {
+      const { sourceIndex, destinationIndex } = action.payload;
+      const groups = state.groups;
+      const movedGroup = groups[sourceIndex];
+      // Remove the item from the array
+      const updated = groups.filter((_, index) => index !== sourceIndex);
+      // Insert it at the new position
+      updated.splice(destinationIndex, 0, movedGroup);
+      state.groups = updated;
+      persist(state);
     },
   },
 });

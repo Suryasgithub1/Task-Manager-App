@@ -1,34 +1,56 @@
-import React from "react";
+import React, { useState } from "react";
 import { useSelector, useDispatch } from "react-redux";
-import {
-  DragDropContext,
-  Droppable,
-  Draggable,
-} from "@hello-pangea/dnd";
 import Group from "./Group";
 import {
+  addGroup,
   addRow,
   removeRow,
   updateRow,
   renameGroup,
   removeGroup,
   reorderGroups,
+  addColumn,
+  removeColumn,
+  renameColumn,
 } from "../store/boardSlice";
 
 const GroupsList = () => {
-  const dispatch = useDispatch();
-  const board = useSelector((state) => state.board);
+  const board = useSelector((state) => state.board); //Subscribing to the store
 
-  const handleDragEnd = (result) => {
-    const { source, destination } = result;
-    if (!destination) return;
+  const dispatch = useDispatch(); 
 
-    dispatch(
-      reorderGroups({
-        sourceIndex: source.index,
-        destinationIndex: destination.index,
-      })
-    );
+  const [dragIndex, setDragIndex] = useState(null);
+
+  const handleDragStart = (index) => setDragIndex(index);
+
+  const handleDrop = (index) => {
+    if (dragIndex === null || dragIndex === index) return;
+    dispatch(reorderGroups({ sourceIndex: dragIndex, destinationIndex: index }));
+    setDragIndex(null);
+  };
+
+  const handleDragOver = (e) => e.preventDefault();
+
+  const groupHandlers = {
+    onRenameGroup: (id, title) => dispatch(renameGroup({ id, title })),
+
+    onRemoveGroup: (id) => dispatch(removeGroup(id)),
+
+    onAddRow: (id) => dispatch(addRow(id)),
+
+    onRemoveRow: (id, index) => dispatch(removeRow({ groupId: id, index })),
+
+    onUpdateRow: (id, rowIndex, key, value) =>
+      dispatch(updateRow({ groupId: id, rowIndex, key, value })),
+
+    onAddColumn: (groupId, column) =>
+      dispatch(addColumn({ groupId, column })),
+
+    onRemoveColumn: (id, colId) =>
+      dispatch(removeColumn({ groupId: id, columnId: colId })),
+    
+    onRenameColumn: (id, colId, name) =>
+      dispatch(renameColumn({ groupId: id, columnId: colId, newName: name })),
   };
 
   if (board.groups.length === 0) {
@@ -40,51 +62,21 @@ const GroupsList = () => {
   }
 
   return (
-    <DragDropContext onDragEnd={handleDragEnd}>
-      <Droppable droppableId="groups">
-        {(dropProvided) => (
-          <div
-            ref={dropProvided.innerRef}
-            {...dropProvided.droppableProps}
-          >
-            {board.groups.map((group, index) => (
-              <Draggable
-                key={group.id}
-                draggableId={group.id}
-                index={index}
-              >
-                {(dragProvided) => (
-                  <div
-                    ref={dragProvided.innerRef}
-                    {...dragProvided.draggableProps}
-                    {...dragProvided.dragHandleProps}
-                    className="mb-4"
-                  >
-                    <Group
-                      group={group}
-                      onUpdateRow={(rowIndex, key, value) =>
-                        dispatch(updateRow({ groupId: group.id, rowIndex, key, value }))
-                      }
-                      onAddRow={() => dispatch(addRow(group.id))}
-                      onRemoveRow={(index) =>
-                        dispatch(removeRow({ groupId: group.id, index }))
-                      }
-                      onRenameGroup={(title) =>
-                        dispatch(renameGroup({ id: group.id, title }))
-                      }
-                      onRemoveGroup={() => dispatch(removeGroup(group.id))}
-                    />
-                  </div>
-                )}
-              </Draggable>
-            ))}
-            {dropProvided.placeholder}
-          </div>
-        )}
-      </Droppable>
-    </DragDropContext>
+    <div>
+      {board.groups.map((group, index) => (
+        <div
+          key={group.id}
+          draggable
+          onDragStart={() => handleDragStart(index)}
+          onDragOver={handleDragOver}
+          onDrop={() => handleDrop(index)}
+          className="mb-4 cursor-move"
+        >
+          <Group group={group} {...groupHandlers} />
+        </div>
+      ))}
+    </div>
   );
 };
 
 export default GroupsList;
- 

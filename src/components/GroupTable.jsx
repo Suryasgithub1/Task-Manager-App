@@ -2,14 +2,15 @@ import React from "react";
 import EditableCell from "./EditableCell";
 
 const GroupTable = ({
-  columns,
-  rows,
+  columns = [],
+  rows = [],
   onAddRow,
   onRemoveRow,
   onUpdateRow,
   onRemoveColumn,
   onRenameColumn
 }) => {
+
   return (
     <div>
       <table className="w-full text-sm border border-gray-200 rounded-lg overflow-hidden">
@@ -44,7 +45,7 @@ const GroupTable = ({
                 <EditableCell
                   value={row.title || ""}
                   placeholder="Title"
-                  columnKey="title" // ✅ Pass this prop
+                  columnKey="title" 
                   onChange={(val) => onUpdateRow(idx, "title", val)}
                 />
               </td>

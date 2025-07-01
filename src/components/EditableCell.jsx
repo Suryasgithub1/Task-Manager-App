@@ -1,26 +1,23 @@
-import React, {useState, useEffect} from "react";
+import React, { useState, useEffect } from "react";
 
-
-const EditableCell = ({ value, onChange, type = "text", columnKey }) => {
-  const [input, setInput] = useState(value || "");
+const EditableCell = ({ value = "", onChange, type = "text", columnKey }) => {
+  const [input, setInput] = useState(value);
   const [error, setError] = useState("");
 
   useEffect(() => {
-    setInput(value || "");
+    setInput(value);
   }, [value]);
 
   const handleChange = (e) => {
     const val = e.target.value;
     setInput(val);
 
-    if (type === "text" && columnKey === "title") {
-      if (val.trim() === "") {
-        setError("Row title cannot be empty.");
-      } else {
-        setError("");
-        onChange(val);
-      }
+    const isEmptyTitle = type === "text" && columnKey === "title" && val.trim() === "";
+
+    if (isEmptyTitle) {
+      setError("Row title cannot be empty.");
     } else {
+      setError("");
       onChange(val);
     }
   };
@@ -34,7 +31,7 @@ const EditableCell = ({ value, onChange, type = "text", columnKey }) => {
       case "Done":
         return "bg-green-100 text-green-800";
       default:
-        return "bg-gray-50";
+        return "bg-gray-100 text-gray-800";
     }
   };
 
@@ -53,7 +50,7 @@ const EditableCell = ({ value, onChange, type = "text", columnKey }) => {
   }
 
   return (
-    <div className="flex flex-col">
+    <div>
       <input
         type="text"
         className={`w-full border rounded px-2 py-1 text-sm ${
@@ -62,7 +59,7 @@ const EditableCell = ({ value, onChange, type = "text", columnKey }) => {
         value={input}
         onChange={handleChange}
       />
-      {error && <span className="text-xs text-red-500 mt-1">{error}</span>}
+      {error && <p className="text-xs text-red-500 mt-1">{error}</p>}
     </div>
   );
 };

@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 
 const GroupHeader = ({ title, rowCount, onRename, onRemove, onAddColumn }) => {
+  
   const [input, setInput] = useState(title || "");
   const [error, setError] = useState("");
 
@@ -23,9 +24,7 @@ const GroupHeader = ({ title, rowCount, onRename, onRemove, onAddColumn }) => {
     <div className="mb-4">
       <div className="flex justify-between items-center">
         <input
-          className={`text-xl font-semibold text-indigo-800 bg-transparent border-b w-full ${
-            error ? "border-red-500" : "border-indigo-200"
-          } focus:outline-none`}
+          className={`text-xl font-semibold text-indigo-800 bg-transparent border-b w-full ${error ? "border-red-500" : "border-indigo-200"} focus:outline-none`}
           value={input}
           onChange={handleChange}
           placeholder="New Group"
@@ -33,7 +32,7 @@ const GroupHeader = ({ title, rowCount, onRename, onRemove, onAddColumn }) => {
         <div className="flex gap-2 ml-4">
           <button
             onClick={onAddColumn}
-            className="text-sm text-indigo-600 hover:text-indigo-800"
+            className="text-sm text-indigo-500 hover:text-indigo-800"
           >
             ➕ Column
           </button>
